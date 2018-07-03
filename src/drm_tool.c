@@ -79,7 +79,7 @@ const char* get_card_name(DrmToolArgs* args)
 	return NULL;
 }
 
-void drm_set_property(DrmToolArgs* args,  drmModeConnector *conn, drmModePropertyPtr prop)
+void drm_set_property(DrmToolArgs* args,  drmModeConnector *conn, drmModePropertyPtr prop, uint64_t old_value)
 {
 	switch(args->cmd){
 		case DRM_TOOL_SET:
@@ -94,8 +94,29 @@ void drm_set_property(DrmToolArgs* args,  drmModeConnector *conn, drmModePropert
 
 		case DRM_TOOL_LIST:
 		default:
-			printf("    property (#%d):  %s\n", prop->prop_id, prop->name);
+		{
+			char* enum_name = NULL;
+			// If enum => find enum text
+			if (prop->flags & DRM_MODE_PROP_ENUM) {
+				for (int i = 0; i < prop->count_values; i++) {
+					struct drm_mode_property_enum e = prop->enums[i];
+					if (e.value == old_value) {
+						enum_name = e.name;
+						break;
+					}
+				}
+				if (!enum_name) {
+					printf("#\tproperty value (%lu) not found in enum list!\n", old_value);
+				}
+			}
+			printf("    property (#%d):  %s", prop->prop_id, prop->name);
+			if (enum_name)
+				printf(" = %s", enum_name);
+			else
+				printf(" = %lu", old_value);
+			printf("\n");
 			break;
+		}
 	}
 }
 
@@ -132,7 +153,7 @@ void drm_connectors(DrmToolArgs* args, drmModeConnector *conn)
 			continue;
 		}
 
-		drm_set_property(args, conn, prop);
+		drm_set_property(args, conn, prop, conn->prop_values[i]);
 
 		drmModeFreeProperty(prop);
 	}
