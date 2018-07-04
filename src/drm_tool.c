@@ -98,22 +98,18 @@ void drm_set_property(DrmToolArgs* args,  drmModeConnector *conn, drmModePropert
 			char* enum_name = NULL;
 			// If enum => find enum text
 			if (prop->flags & DRM_MODE_PROP_ENUM) {
-				for (int i = 0; i < prop->count_values; i++) {
-					struct drm_mode_property_enum e = prop->enums[i];
-					if (e.value == old_value) {
-						enum_name = e.name;
-						break;
+				for (int i = 0; i < prop->count_enums; i++) {
+					if (prop->enums[i].value == old_value) {
+						enum_name = prop->enums[i].name;
 					}
 				}
 				if (!enum_name) {
 					printf("#\tproperty value (%lu) not found in enum list!\n", old_value);
 				}
 			}
-			printf("    property (#%d):  %s", prop->prop_id, prop->name);
+			printf("    property (#%d):  %s = %lu", prop->prop_id, prop->name, old_value);
 			if (enum_name)
-				printf(" = %s", enum_name);
-			else
-				printf(" = %lu", old_value);
+				printf(" (%s)", enum_name);
 			printf("\n");
 			break;
 		}
