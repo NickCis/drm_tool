@@ -18,7 +18,7 @@ LDFLAGS=`pkg-config --libs libdrm`
 all: $(OUTPUT)
 
 $(OUTPUT): $(OBJECTS) $(OUTPUT_PATH)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o "$(OUTPUT_PATH)/$@"
+	$(CC) $(OBJECTS) -o "$(OUTPUT_PATH)/$@" $(LDFLAGS)
 
 clean:
 	- $(RM) $(OUTPUT) $(OBJECTS) *~ $(SRC_PATH)/*~
