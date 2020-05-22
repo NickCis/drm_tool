@@ -33,3 +33,6 @@
 
 # Vim files
 .*.sw*
+
+# output folder
+build*
